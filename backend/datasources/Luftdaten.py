@@ -1,0 +1,2 @@
+class Luftdaten:
+    pass
