@@ -4,9 +4,12 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+yapf = "*"
 
 [packages]
 flask = "*"
+flask-restful = "*"
+request = "*"
 
 [requires]
 python_version = "3.8"
