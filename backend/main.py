@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_restful import Api
-from resources import AirQuality
+from models.ApiResources import AirQuality
 
 app = Flask(__name__)
 api = Api(app)
