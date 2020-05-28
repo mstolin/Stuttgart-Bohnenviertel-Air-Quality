@@ -9,7 +9,7 @@ yapf = "*"
 [packages]
 flask = "*"
 flask-restful = "*"
-requests = "*"
+requests-futures = "*"
 
 [requires]
 python_version = "3.8"
