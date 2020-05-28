@@ -1,7 +1,7 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 
 
 class DataSource(ABC):
     @abstractmethod
-    def request_metrics(self):
+    def request_metrics(self, lat, lng):
         pass

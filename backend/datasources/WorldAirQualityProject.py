@@ -1,4 +1,5 @@
-import datasources.DataSource as DataSource
+import requests
+from datasources.DataSource import DataSource
 from os import environ
 
 
@@ -7,13 +8,14 @@ class WorldAirQualityProject(DataSource):
     def _api_endpoint_url(self):
         return 'https://api.waqi.info/feed'
 
-    @property
-    def _api_url(self, lat, lng):
+    def _get_api_url(self, lat, lng):
         token = environ.get('AQODP_API_TOKEN')
         if (token is None):
             raise TypeError
 
-        return f'${self._api_endpoint_url}/geo:${lat};${lng}/?token=${token}'
+        return f'{self._api_endpoint_url}/geo:{lat};{lng}/?token={token}'
 
-    def request_metrics(self):
-        pass
+    def request_metrics(self, lat, lng):
+        response = requests.get(self._get_api_url(lat, lng))
+        json_response = response.json()
+        return json_response['data']['iaqi']

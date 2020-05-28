@@ -1,4 +1,5 @@
 from flask_restful import Resource, reqparse
+from datasources import WorldAirQualityProject
 
 parser = reqparse.RequestParser()
 parser.add_argument('lat', type=float)
@@ -14,6 +15,7 @@ class AirQuality(Resource):
         if (latitude is None or longitude is None):
             return None
 
-        return args
+        data_source = WorldAirQualityProject()
+        metrics = data_source.request_metrics(latitude, longitude)
 
-    def _get
+        return metrics
