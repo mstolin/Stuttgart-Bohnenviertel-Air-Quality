@@ -4,9 +4,8 @@ from os import environ
 
 
 class WorldAirQualityProject(DataSource):
-    @property
-    def _api_endpoint_url(self):
-        return 'https://api.waqi.info/feed'
+    def __init__(self):
+        self._api_endpoint_url = 'https://api.waqi.info/feed'
 
     def _get_api_url(self, lat, lng):
         token = environ.get('AQODP_API_TOKEN')

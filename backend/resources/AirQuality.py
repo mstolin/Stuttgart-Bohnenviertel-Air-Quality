@@ -13,7 +13,7 @@ class AirQuality(Resource):
         latitude = args['lat']
         longitude = args['lng']
         if (latitude is None or longitude is None):
-            return None
+            raise TypeError  # TODO error response
 
         data_source = WorldAirQualityProject()
         metrics = data_source.request_metrics(latitude, longitude)
