@@ -1,8 +1,10 @@
 module Main exposing (main)
 
 import Browser
-import Html exposing (..)
-import Html.Attributes exposing (..)
+import Element exposing (Element, column, padding, paragraph, rgb255, row, spacing, text)
+import Element.Background as Background
+import Element.Border as Border
+import Html exposing (Html)
 import Http
 import Json.Decode exposing (Decoder, field, float, map2, map4, string)
 
@@ -74,28 +76,70 @@ subscriptions _ =
 
 view : Model -> Html Msg
 view model =
-    div [] [ viewAirQuality model ]
+    Element.layout [] (viewAirQuality model)
 
 
-viewAirQuality : Model -> Html Msg
+viewAirQuality : Model -> Element Msg
 viewAirQuality model =
     case model of
         Failure error ->
-            div [] [ text (getErrorMessage error) ]
+            row [] [ text (getErrorMessage error) ]
 
         Loading ->
             text "Loading ..."
 
         Success data ->
-            div []
-                [ div []
-                    [ div [] [ text ("PM10: " ++ String.fromFloat data.metrics.pm10) ]
-                    , div [] [ text ("O3: " ++ String.fromFloat data.metrics.o3) ]
-                    , div [] [ text ("NO2: " ++ String.fromFloat data.metrics.no2) ]
-                    , div [] [ text ("Temperature: " ++ String.fromFloat data.metrics.temperature) ]
-                    , div [] [ text ("Last update: " ++ data.lastUpdate.date ++ " " ++ data.lastUpdate.timezone) ]
-                    ]
+            column
+                [ Background.color (rgb255 210 210 210)
+                , Border.rounded 3
+                , padding 15
+                , spacing 5
                 ]
+                [ paragraph [] [ text ("Air Quality: " ++ String.fromInt (calculateAirQualityIndex data.metrics)) ]
+                , paragraph [] [ text ("PM10: " ++ String.fromFloat data.metrics.pm10) ]
+                , paragraph [] [ text ("O3: " ++ String.fromFloat data.metrics.o3) ]
+                , paragraph [] [ text ("NO2: " ++ String.fromFloat data.metrics.no2) ]
+                , paragraph [] [ text ("Temperature: " ++ String.fromFloat data.metrics.temperature) ]
+                , paragraph [] [ text ("Last update: " ++ data.lastUpdate.date ++ " " ++ data.lastUpdate.timezone) ]
+                ]
+
+
+calculateAirQualityIndex : Metrics -> Int
+calculateAirQualityIndex metrics =
+    if areMetricsVeryGood metrics then
+        1
+
+    else if areMetricsGood metrics then
+        2
+
+    else if areMetricsModerate metrics then
+        3
+
+    else if areMetricsPoor metrics then
+        4
+
+    else
+        5
+
+
+areMetricsVeryGood : Metrics -> Bool
+areMetricsVeryGood metrics =
+    (metrics.no2 >= 0 && metrics.no2 <= 20) && (metrics.pm10 >= 0 && metrics.pm10 <= 20) && (metrics.o3 >= 0 && metrics.o3 <= 60)
+
+
+areMetricsGood : Metrics -> Bool
+areMetricsGood metrics =
+    (metrics.no2 >= 21 && metrics.no2 <= 40) && (metrics.pm10 >= 21 && metrics.pm10 <= 35) && (metrics.o3 >= 61 && metrics.o3 <= 120)
+
+
+areMetricsModerate : Metrics -> Bool
+areMetricsModerate metrics =
+    (metrics.no2 >= 41 && metrics.no2 <= 100) && (metrics.pm10 >= 36 && metrics.pm10 <= 50) && (metrics.o3 >= 121 && metrics.o3 <= 180)
+
+
+areMetricsPoor : Metrics -> Bool
+areMetricsPoor metrics =
+    (metrics.no2 >= 101 && metrics.no2 <= 200) && (metrics.pm10 >= 51 && metrics.pm10 <= 100) && (metrics.o3 >= 181 && metrics.o3 <= 240)
 
 
 getErrorMessage : Http.Error -> String
