@@ -4,7 +4,7 @@ import Browser
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Http
-import Json.Decode exposing (Decoder, field, float, map4, string)
+import Json.Decode exposing (Decoder, field, float, map2, map4, string)
 
 
 
@@ -27,7 +27,7 @@ main =
 type Model
     = Failure Http.Error
     | Loading
-    | Success String
+    | Success AirQualityData
 
 
 
@@ -44,16 +44,16 @@ init _ =
 
 
 type Msg
-    = GotQualityData (Result Http.Error Blabla)
+    = GotQualityData (Result Http.Error AirQualityData)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
+update msg _ =
     case msg of
         GotQualityData result ->
             case result of
-                Ok temp ->
-                    ( Success (String.fromFloat temp.pm10), Cmd.none )
+                Ok model ->
+                    ( Success model, Cmd.none )
 
                 Err error ->
                     ( Failure error, Cmd.none )
@@ -86,8 +86,16 @@ viewAirQuality model =
         Loading ->
             text "Loading ..."
 
-        Success temp ->
-            div [] [ text temp ]
+        Success data ->
+            div []
+                [ div []
+                    [ div [] [ text ("PM10: " ++ String.fromFloat data.metrics.pm10) ]
+                    , div [] [ text ("O3: " ++ String.fromFloat data.metrics.o3) ]
+                    , div [] [ text ("NO2: " ++ String.fromFloat data.metrics.no2) ]
+                    , div [] [ text ("Temperature: " ++ String.fromFloat data.metrics.temperature) ]
+                    , div [] [ text ("Last update: " ++ data.lastUpdate.date ++ " " ++ data.lastUpdate.timezone) ]
+                    ]
+                ]
 
 
 getErrorMessage : Http.Error -> String
@@ -114,10 +122,10 @@ getErrorMessage error =
 
 
 type alias Metrics =
-    { pm10 : Int
-    , o3 : Int
-    , no2 : Int
-    , temperature : Int
+    { pm10 : Float
+    , o3 : Float
+    , no2 : Float
+    , temperature : Float
     }
 
 
@@ -127,17 +135,9 @@ type alias LastUpdate =
     }
 
 
-type alias AirQualityResponse =
-    { metrics : List Metrics
-    , lastUpdate : List LastUpdate
-    }
-
-
-type alias Blabla =
-    { pm10 : Float
-    , o3 : Float
-    , no2 : Float
-    , temperature : Float
+type alias AirQualityData =
+    { metrics : Metrics
+    , lastUpdate : LastUpdate
     }
 
 
@@ -149,10 +149,26 @@ getAirQualityData =
         }
 
 
-airQualityDecoder : Decoder Blabla
+airQualityDecoder : Decoder AirQualityData
 airQualityDecoder =
-    map4 Blabla
+    map2 AirQualityData
+        metricsDecoder
+        lastUpdateDecoder
+
+
+metricsDecoder : Decoder Metrics
+metricsDecoder =
+    map4
+        Metrics
         (field "metrics" (field "pm10" float))
         (field "metrics" (field "o3" float))
         (field "metrics" (field "no2" float))
         (field "metrics" (field "temperature" float))
+
+
+lastUpdateDecoder : Decoder LastUpdate
+lastUpdateDecoder =
+    map2
+        LastUpdate
+        (field "last_update" (field "date" string))
+        (field "last_update" (field "timezone" string))
