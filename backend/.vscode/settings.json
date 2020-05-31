@@ -1,10 +1,8 @@
 {
-    "python.pythonPath": "/Users/marcelstolin/.local/share/virtualenvs/backend-zYtohYEb/bin/python",
     "python.linting.enabled": true,
     "python.formatting.provider": "yapf",
     "python.formatting.yapfArgs": [
         "--style",
         "{based_on_style: pep8, indent_width: 4}"
-    ],
-    "editor.formatOnSave": true
+    ]
 }
