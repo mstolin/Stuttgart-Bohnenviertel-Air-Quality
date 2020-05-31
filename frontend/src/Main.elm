@@ -95,10 +95,11 @@ viewAirQuality model =
                 , padding 15
                 , spacing 5
                 ]
-                [ paragraph [] [ text ("Air Quality: " ++ String.fromInt (calculateAirQualityIndex data.metrics)) ]
-                , paragraph [] [ text ("PM10: " ++ String.fromFloat data.metrics.pm10) ]
-                , paragraph [] [ text ("O3: " ++ String.fromFloat data.metrics.o3) ]
-                , paragraph [] [ text ("NO2: " ++ String.fromFloat data.metrics.no2) ]
+                [ paragraph [] [ text ("Air Quality: " ++ getAirQualityDescription (calculateAirQualityIndex data.metrics)) ]
+                , paragraph [] [ text ("Air Quality Index: " ++ String.fromInt (calculateAirQualityIndex data.metrics)) ]
+                , paragraph [] [ text ("PM10: " ++ String.fromFloat data.metrics.pm10 ++ " μg/m³") ]
+                , paragraph [] [ text ("O3: " ++ String.fromFloat data.metrics.o3 ++ " μg/m") ]
+                , paragraph [] [ text ("NO2: " ++ String.fromFloat data.metrics.no2 ++ " μg/m³") ]
                 , paragraph [] [ text ("Temperature: " ++ String.fromFloat data.metrics.temperature) ]
                 , paragraph [] [ text ("Last update: " ++ data.lastUpdate.date ++ " " ++ data.lastUpdate.timezone) ]
                 ]
@@ -140,6 +141,24 @@ areMetricsModerate metrics =
 areMetricsPoor : Metrics -> Bool
 areMetricsPoor metrics =
     (metrics.no2 >= 101 && metrics.no2 <= 200) && (metrics.pm10 >= 51 && metrics.pm10 <= 100) && (metrics.o3 >= 181 && metrics.o3 <= 240)
+
+
+getAirQualityDescription : Int -> String
+getAirQualityDescription index =
+    if index == 1 then
+        "Very Good"
+
+    else if index == 2 then
+        "Good"
+
+    else if index == 3 then
+        "Moderate"
+
+    else if index == 4 then
+        "Poor"
+
+    else
+        "Very Poor"
 
 
 getErrorMessage : Http.Error -> String
